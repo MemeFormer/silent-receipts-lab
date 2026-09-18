@@ -1,0 +1,21 @@
+# Session / secrets – NEVER commit these
+data/
+*.db
+*.db-*
+session*
+store/
+*.session
+
+# Go
+bin/
+*.exe
+*.test
+*.out
+vendor/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
