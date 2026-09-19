@@ -21,17 +21,21 @@ silent-receipts-lab/
 ├── cmd/
 │   ├── minimal/               # Minimal whatsmeow client (pairing, listening, session management)
 │   │   └── main.go
-│   └── receipts/              # Careless Whisper timing & delivery receipt analysis lab
+│   ├── receipts/              # Careless Whisper timing & delivery receipt analysis lab (single probe)
+│   │   └── main.go
+│   └── monitor/               # Longitudinal monitor: automated CSV logging + HTML Chart.js report
 │       └── main.go
+├── data/                      # Generated RTT logs (*.csv + *.html, git-ignored)
 ├── docs/
 │   ├── 01-environment-setup.md # Part 1: Intel Mac OCLP, manual Go, no-brew, no-CLT guide
 │   ├── 02-understanding-whatsmeow-and-careless-whisper.md # Part 2: Protocol architecture & vulnerability deep-dive
 │   ├── 03-quickstart-guide.md # Part 2: Step-by-step pairing & running the lab
-│   └── 04-troubleshooting-and-faq.md # Part 2: Common issues, DSN fixes, and FAQs
+│   ├── 04-troubleshooting-and-faq.md # Part 2: Common issues, DSN fixes, and FAQs
+│   └── 05-longitudinal-monitoring.md # Part 3: Automated logging, plotting & hotspot/consent notes
 ├── scripts/
 │   └── check-env.sh           # Environment & toolchain preflight diagnostic script
 ├── store/                     # Local SQLite session database (auto-created, git-ignored)
-├── Makefile                   # Convenient shortcuts (make check, make run, make lab, make build)
+├── Makefile                   # Convenient shortcuts (make check, make run, make lab, make monitor)
 ├── go.mod                     # Go module definition
 ├── .gitignore                 # Prevents committing secrets or session credentials
 └── README.md
@@ -51,8 +55,10 @@ silent-receipts-lab/
 ### 🚀 Part 2: whatsmeow & Careless Whisper Exploration
 - **Minimal Client (`cmd/minimal`):** Pairs your device via an in-terminal QR code, saves credentials in `store/session.db`, and displays incoming messages and delivery receipts.
 - **Receipt & Timing Lab (`cmd/receipts`):** Measures Round-Trip Time (RTT) of device delivery receipts (`<receipt type="">`), demonstrating how mobile sleep/wake states leak through the timing side-channel.
+- **Longitudinal Monitor (`cmd/monitor`):** Automated, consensual RTT logging at fixed intervals with live CSV + interactive HTML report — your requested automation & visualization.
 - 👉 **[Read Part 2: Understanding Careless Whisper](docs/02-understanding-whatsmeow-and-careless-whisper.md)**
 - 👉 **[Read Part 2: Quickstart Guide](docs/03-quickstart-guide.md)**
+- 👉 **[Read Part 3: Longitudinal Monitoring (automation & graphs)](docs/05-longitudinal-monitoring.md)**
 - 👉 **[Read Troubleshooting & FAQ](docs/04-troubleshooting-and-faq.md)**
 
 ---
@@ -69,11 +75,15 @@ go mod tidy
 # 3. Launch the minimal client and scan the terminal QR code
 go run ./cmd/minimal
 
-# 4. Run the receipt timing lab
+# 4. Run the receipt timing lab (single probe)
 go run ./cmd/receipts
+
+# 5. Run the longitudinal monitor (automated logging + graph)
+go run ./cmd/monitor -target 4915756941992 -interval 90s -count 10
+open data/rtt_4915756941992_*.html
 ```
 
-*(Or use the Makefile: `make check`, `make run`, `make lab`, `make build`)*
+*(Or use the Makefile: `make check`, `make run`, `make lab`, `make monitor ARGS="-target ..."` , `make build`)*
 
 ---
 

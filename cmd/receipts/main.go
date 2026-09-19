@@ -53,8 +53,10 @@ func logReceiptAnalysis(receipt *events.Receipt) {
 			now := time.Now()
 			rtt := now.Sub(probe.sentAt)
 
-			switch receipt.Type {
-			case types.ReceiptTypeDelivered, "":
+			// Device delivery receipts are type "" (empty string) in WhatsApp multi-device.
+			// whatsmeow constant types.ReceiptTypeDelivered equals "" — we check both forms
+			// without duplicating the constant in a single switch case.
+			if string(receipt.Type) == "" || receipt.Type == types.ReceiptTypeDelivered {
 				probe.delivered = now
 				fmt.Printf("\n   🎯 [PROBE MATCH] Target Device Acknowledged Delivery!\n")
 				fmt.Printf("      Message ID: %s\n", msgID)
@@ -73,7 +75,7 @@ func logReceiptAnalysis(receipt *events.Receipt) {
 					fmt.Printf("      → RTT > 1200ms: Typical for phone waking from deep sleep / cellular paging (Doze state).\n")
 				}
 
-			case types.ReceiptTypeRead:
+			} else if receipt.Type == types.ReceiptTypeRead {
 				probe.readAt = now
 				readRTT := now.Sub(probe.sentAt)
 				fmt.Printf("\n   👀 [PROBE MATCH] Read Receipt Received!\n")
